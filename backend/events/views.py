@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from tiling import tile_to_polygon, cluster_events
+from events.tiling import tile_to_polygon, cluster_events
 from events.models import Event
 import mapbox_vector_tile
 from django.http import HttpResponse
@@ -29,12 +29,12 @@ def get_tile_mvt(request, zoom, xtile, ytile):
             }
         })
 
-    tile_data = mapbox_vector_tile.encode({
-        'events': {
-            'features': features,
-            'version': 2
-        }
-    })
+    layer_data = {
+        'name': 'events',
+        'features': features
+    }
+    
+    tile_data = mapbox_vector_tile.encode(layer_data)
 
     response = HttpResponse(
         tile_data,

@@ -31,7 +31,7 @@ def tile_to_polygon(xtile: int, ytile: int, zoom: int) -> Polygon:
     # Finds the bounding box polygon corresponding to a tile
     left, bottom, right, top = tile_to_latlon(xtile, ytile, zoom)
 
-    return Polygon.from_bbox(left, bottom, right, top)
+    return Polygon.from_bbox((left, bottom, right, top))
 
 def find_cluster_radius(zoom: int) -> float:
     # Find how big of a radius each event should cover for zoom level
