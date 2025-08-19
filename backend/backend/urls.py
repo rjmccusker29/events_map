@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+import events.views as views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('tiles/<int:z>/<int:x>/<int:y>.mvt', views.get_tile_mvt, name='tile_mvt'),
 ]
