@@ -1,6 +1,9 @@
 import math
 from typing import Tuple, List
 from django.contrib.gis.geos import Polygon
+from events.models import Event
+from django.contrib.gis.measure import D
+from django.db.models import QuerySet
 
 def latlon_to_tile(lat: float, lon: float, zoom: int) -> Tuple[int, int]:
     # Determines which tile we're in based on coordinates and zoom
@@ -32,24 +35,29 @@ def tile_to_polygon(xtile: int, ytile: int, zoom: int) -> Polygon:
 
 def find_cluster_radius(zoom: int) -> float:
     # Find how big of a radius each event should cover for zoom level
-    base_radius = 50.0
+    base_radius = 5000.0
 
+    # equation subject to change based on results
     return base_radius / (2 ** (zoom * 0.8))
 
-def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    # Distance accounting for earth's curve
-    R = 6371  # Earth's radius in kilometers
-    
-    # Convert to radians
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    
-    # Haversine formula (standard way to calculate distance on a sphere)
-    a = (math.sin(dlat/2) * math.sin(dlat/2) + 
-         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * 
-         math.sin(dlon/2) * math.sin(dlon/2))
-    
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-    distance = R * c
-    
-    return distance
+
+
+def cluster_events(events: QuerySet[Event], zoom: int, max_events_per_tile: int = 50) -> List[Event]:
+    # Pick the events that will be displayed
+    clustered_events = []
+    remaining_events = events.order_by('-views')
+
+    while len(clustered_events) < max_events_per_tile and remaining_events:
+        top_event = remaining_events[0]
+        clustered_events.append(top_event)
+
+        cluster_radius = find_cluster_radius(zoom)
+
+        nearby_events = Event.objects.filter(
+            location__distance_lte=(top_event.location, D(km=cluster_radius))
+        )
+
+        nearby_ids = list(nearby_events.values_list('id', flat=True))
+        remaining_events = remaining_events.exclude(id__in=nearby_ids)
+
+    return clustered_events
