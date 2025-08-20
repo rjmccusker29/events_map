@@ -19,6 +19,29 @@ const Map = () => {
         });
 
         map.current.on('load', () => {
+            map.current?.addSource('events-source', {
+                type: 'vector',
+                tiles: ['http://localhost:8000/tiles/{z}/{x}/{y}.mvt'],
+            });
+
+            map.current?.addLayer({
+                id: 'events-layer',
+                type: 'symbol',
+                source: 'events-source',
+                'source-layer': 'events',
+                layout: {
+                    'text-field': ['get', 'name'],
+                    'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular'],
+                    'text-size': 12,
+                    'text-anchor': 'center',
+                },
+                paint: {
+                    'text-color': '#ffffff',
+                    'text-halo-color': '#000000',
+                    'text-halo-width': 1
+                }
+            });
+
             map.current?.resize();
         });
 
