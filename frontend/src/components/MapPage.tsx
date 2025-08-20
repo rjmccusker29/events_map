@@ -1,3 +1,4 @@
+import Map from './Map';
 
 
 const MapPage = () => {
@@ -5,7 +6,7 @@ const MapPage = () => {
 
     return (
         <>
-            <div>heyo</div>
+            <Map />
         </>
     );
 };
