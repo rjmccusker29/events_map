@@ -18,6 +18,10 @@ const Map = () => {
             zoom: 2,
         });
 
+        map.current.on('load', () => {
+            map.current?.resize();
+        });
+
         return () => {
             if (map.current) {
                 map.current.remove();
@@ -26,7 +30,7 @@ const Map = () => {
         };
     }, []);
 
-    return <div ref={mapContainer} style={{width:'100%', height:'400px'}} />;
+    return <div ref={mapContainer} className="h-screen w-full" />;
 };
 
 export default Map;
