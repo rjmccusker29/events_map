@@ -53,7 +53,7 @@ def cluster_events(events: QuerySet[Event], zoom: int, max_events_per_tile: int 
 
         cluster_radius = find_cluster_radius(zoom)
 
-        nearby_events = Event.objects.filter(
+        nearby_events = remaining_events.filter(
             location__distance_lte=(top_event.location, D(km=cluster_radius))
         )
 
