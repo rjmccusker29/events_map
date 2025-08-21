@@ -18,7 +18,23 @@ const Map = () => {
             zoom: 2,
         });
 
-        map.current.on('load', () => {
+        map.current.on('style.load', () => {
+            const style = map.current?.getStyle();
+            if (style?.layers) {
+                style.layers.forEach(layer => {
+                    // Hide layers that contain labels/text
+                    if (layer.type === 'symbol' && 
+                        (layer.id.includes('label') || 
+                         layer.id.includes('place') ||
+                         layer.id.includes('poi') ||
+                         layer.id.includes('road') ||
+                         layer.id.includes('transit'))) {
+                        map.current?.setLayoutProperty(layer.id, 'visibility', 'none');
+                    }
+                });
+            }
+
+
             map.current?.addSource('events-source', {
                 type: 'vector',
                 tiles: ['http://localhost:8000/tiles/{z}/{x}/{y}.mvt'],

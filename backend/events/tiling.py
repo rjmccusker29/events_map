@@ -35,7 +35,7 @@ def tile_to_polygon(xtile: int, ytile: int, zoom: int) -> Polygon:
 
 def find_cluster_radius(zoom: int) -> float:
     # Find how big of a radius each event should cover for zoom level
-    base_radius = 5000.0
+    base_radius = 2000.0
 
     # equation subject to change based on results
     return base_radius / (2 ** (zoom * 0.8))

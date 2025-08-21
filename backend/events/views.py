@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from events.tiling import tile_to_polygon, cluster_events
+from events.tiling import tile_to_polygon, cluster_events, tile_to_latlon
 from events.models import Event
 import mapbox_vector_tile
 from django.http import HttpResponse
@@ -12,6 +12,7 @@ def get_tile_mvt(request, zoom, xtile, ytile):
     ).order_by("-views")
 
     clustered_events = cluster_events(events_in_tile, zoom)
+    lon_left, lat_bottom, lon_right, lat_top = tile_to_latlon(xtile, ytile, zoom)
 
     features = []
     for event in clustered_events:
@@ -34,7 +35,10 @@ def get_tile_mvt(request, zoom, xtile, ytile):
         'features': features
     }
     
-    tile_data = mapbox_vector_tile.encode(layer_data)
+    tile_data = mapbox_vector_tile.encode(
+        layer_data, 
+        quantize_bounds=(lon_left, lat_bottom, lon_right, lat_top),
+    )
 
     response = HttpResponse(
         tile_data,
