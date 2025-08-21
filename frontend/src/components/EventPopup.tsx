@@ -4,11 +4,12 @@ import dayjs from 'dayjs';
 interface EventPopupProps {
     name: string;
     date: string;
+    views: number;
     wikiUrl: string;
     onClose: () => void;
 }
 
-const EventPopup: React.FC<EventPopupProps> = ({ name, date, wikiUrl, onClose }) => {
+const EventPopup: React.FC<EventPopupProps> = ({ name, date, views, wikiUrl, onClose }) => {
     const formattedDate = dayjs(date).format('MMMM D, YYYY');
 
     return (
@@ -23,7 +24,8 @@ const EventPopup: React.FC<EventPopupProps> = ({ name, date, wikiUrl, onClose })
         
             <div className="p-4">
                 <h3 className="font-semibold text-gray-900 text-lg mb-2 leading-tight pr-4">{name}</h3>
-                <p className="text-gray-600 text-sm mb-3">{formattedDate}</p>
+                <p className="text-gray-600 text-sm mb-1">{formattedDate}</p>
+                <p className="text-gray-600 text-sm mb-3">{views} views/day</p>
                 <a
                     href={wikiUrl}
                     target="_blank"

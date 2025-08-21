@@ -84,6 +84,7 @@ const Map = () => {
                     <EventPopup
                         name={properties.name}
                         date={properties.date}
+                        views={properties.views}
                         wikiUrl={properties.wiki_url}
                         onClose={() => {
                             if (popup.current) {
@@ -95,7 +96,7 @@ const Map = () => {
 
                 popup.current = new mapboxgl.Popup({
                     closeButton: false, 
-                    closeOnClick: false,
+                    closeOnClick: true,
                     maxWidth: '300px',
                     className: 'custom-popup'
                 })
