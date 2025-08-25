@@ -16,20 +16,16 @@ import os
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("SECRET KEY environment variable is requireed")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#z*rd_0b9h2lia3yreu8gabusw0lyb*75#($_8s*37*1ml8zxf'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -58,9 +54,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
 
 ROOT_URLCONF = 'backend.urls'
 
