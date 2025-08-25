@@ -35,10 +35,24 @@ def tile_to_polygon(xtile: int, ytile: int, zoom: int) -> Polygon:
 
 def find_cluster_radius(zoom: int) -> float:
     # Find how big of a radius each event should cover for zoom level
-    base_radius = 2000.0
 
-    # equation subject to change based on results
-    return base_radius / (2 ** (zoom * 0.8))
+    radius_map = {
+        0: 5000.0,   # Global view: very few events, very spread out
+        1: 2500.0,   # Continental: fewer events
+        2: 1200.0,   # Country-level: moderate spread
+        3: 600.0,    # Regional
+        4: 300.0,    # State/province level
+        5: 150.0,    # City-region level
+        6: 75.0,     # City level: more events, closer together
+        7: 40.0,     # District level
+        8: 20.0,     # Neighborhood level
+        9: 10.0,     # Street level: many close events
+        10: 5.0,     # Block level
+        11: 2.5,     # Building level
+        12: 1.0,     # Very detailed view
+    }
+
+    return radius_map.get(zoom, 0.1)
 
 
 
