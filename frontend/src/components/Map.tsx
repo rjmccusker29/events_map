@@ -8,6 +8,7 @@ const Map = () => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<mapboxgl.Map | null>(null);
     const popup = useRef<mapboxgl.Popup | null>(null);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
         if (map.current || !mapContainer.current) return;
@@ -39,7 +40,7 @@ const Map = () => {
 
             map.current?.addSource('events-source', {
                 type: 'vector',
-                tiles: ['http://localhost:8000/tiles/{z}/{x}/{y}.mvt'],
+                tiles: [`${API_BASE_URL}/tiles/{z}/{x}/{y}.mvt`],
             });
 
             map.current?.addLayer({
