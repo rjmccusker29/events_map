@@ -14,11 +14,12 @@ const Map = ({ startDate, endDate }: MapProps) => {
     const map = useRef<mapboxgl.Map | null>(null);
     const popup = useRef<mapboxgl.Popup | null>(null);
     const [isMapLoaded, setIsMapLoaded] = useState(false);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const buildTileUrl = (start: string | null, end: string | null) => {
         const startParam = start || '-';
         const endParam = end || '-';
-        return `http://localhost:8000/tiles/{z}/{x}/{y}/${startParam}/${endParam}.mvt`;
+        return `${API_BASE_URL}/tiles/{z}/{x}/{y}/${startParam}/${endParam}.mvt`;
     };
 
     // Update tile source when dates change
