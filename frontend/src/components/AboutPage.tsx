@@ -6,7 +6,7 @@ const AboutPage = () => {
     return (
         <>
             <div className="w-screen min-h-screen flex flex-col items-center justify-center">
-                <div className="max-w-180">
+                <div className="max-w-180 px-2">
                     <div className="text-3xl font-bold">About</div>
                     <div className="mt-3">This map shows the locations of notable events. All data collected from Wikidata and Wikipedia</div>
                     <div className="mt-3">I tried to find all Wikipedia articles that correspond to an event. Some articles made it through that are not events because I'm a little silly.</div>
