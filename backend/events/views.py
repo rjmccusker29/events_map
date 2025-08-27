@@ -5,28 +5,47 @@ import mapbox_vector_tile
 from django.http import HttpResponse
 from django.contrib.gis.geos import Point
 import time
+from datetime import datetime
+def get_tile_mvt(request, zoom, xtile, ytile, start_date, end_date):
+    date_filter = parse_date_range(start_date, end_date)
 
-def get_tile_mvt(request, zoom, xtile, ytile):
-    start_time = time.time()
-    
     # use pre-computed clusters first (for zoom 0-8)
     if zoom <= 8:
-        clusters = Cluster.objects.filter(
-            zoom_level=zoom,
-            tile_x=xtile,
-            tile_y=ytile
-        ).select_related('representative_event')
+        if date_filter:
+            clusters = Cluster.objects.filter(
+                zoom_level=zoom,
+                tile_x=xtile,
+                tile_y=ytile
+            ).prefetch_related('cluster_events')
         
-        if clusters.exists():
-            events = [cluster.representative_event for cluster in clusters]
-            print(f"Using pre-computed clusters: {len(events)} events in {time.time() - start_time:.3f}s")
+            if clusters.exists():
+                events = []
+                for cluster in clusters:
+                    # get best event from cluster within date range
+                    filtered_events = cluster.cluster_events.filter(**date_filter).order_by('-views')
+                    if filtered_events.exists():
+                        events.append(filtered_events.first())
+            else:
+                # fallback to dynamic clustering (shouldn't happen)
+                print(f"No pre-computed clusters found for z{zoom}/{xtile}/{ytile}, falling back to dynamic")
+                events = get_events_dynamic(zoom, xtile, ytile)
         else:
-            # fallback to dynamic clustering (shouldn't happen)
-            print(f"No pre-computed clusters found for z{zoom}/{xtile}/{ytile}, falling back to dynamic")
-            events = get_events_dynamic(zoom, xtile, ytile)
+            # just use the cluster representative (no time filter)
+            clusters = Cluster.objects.filter(
+                zoom_level=zoom,
+                tile_x=xtile,
+                tile_y=ytile
+            ).select_related('representative_event')
+            
+            if clusters.exists():
+                events = [cluster.representative_event for cluster in clusters]
+            else:
+                # fallback to dynamic clustering (shouldn't happen)
+                print(f"No pre-computed clusters found for z{zoom}/{xtile}/{ytile}, falling back to dynamic")
+                events = get_events_dynamic(zoom, xtile, ytile)
     else:
         # use dynamic clustering for high zoom levels
-        events = get_events_dynamic(zoom, xtile, ytile)
+        events = get_events_dynamic(zoom, xtile, ytile, date_filter)
     
     features = []
     for event in events:
@@ -73,14 +92,32 @@ def get_tile_mvt(request, zoom, xtile, ytile):
 
     return response
 
-def get_events_dynamic(zoom, xtile, ytile):
-    # fallback to original dynamic clustering algorithm
+def get_events_dynamic(zoom, xtile, ytile, date_filter=None):
+    # fallback to original dynamic clustering algorithm with optional date filter
     bbox_polygon = tile_to_polygon(xtile, ytile, zoom)
     
-    events_in_tile = Event.objects.filter(
-        location__within=bbox_polygon
-    ).order_by("-views")
-
+    events_query = Event.objects.filter(location__within=bbox_polygon)
+    
+    # apply date filter if provided
+    if date_filter:
+        events_query = events_query.filter(**date_filter)
+    
+    events_in_tile = events_query.order_by("-views")
+    
     clustered_events = cluster_events(events_in_tile, zoom)
     
     return clustered_events
+
+def parse_date_range(start_date_str, end_date_str):
+    # return django filter dict
+    date_filter = {}
+    
+    if start_date_str != '-':
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        date_filter['date__gte'] = start_date
+    
+    if end_date_str != '-':
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        date_filter['date__lte'] = end_date
+    
+    return date_filter if date_filter else None

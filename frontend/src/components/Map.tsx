@@ -40,7 +40,7 @@ const Map = () => {
 
             map.current?.addSource('events-source', {
                 type: 'vector',
-                tiles: [`${API_BASE_URL}/tiles/{z}/{x}/{y}.mvt`],
+                tiles: [`${API_BASE_URL}/tiles/{z}/{x}/{y}/1900-01-01/2000-01-01.mvt`],
             });
 
             map.current?.addLayer({
