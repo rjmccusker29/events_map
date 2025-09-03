@@ -20,5 +20,5 @@ import events.views as views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('tiles/<int:zoom>/<int:xtile>/<int:ytile>.mvt', views.get_tile_mvt, name='tile_mvt'),
+    path('tiles/<int:zoom>/<int:xtile>/<int:ytile>/<str:start_date>/<str:end_date>.mvt', views.get_tile_mvt, name='tile_mvt'),
 ]

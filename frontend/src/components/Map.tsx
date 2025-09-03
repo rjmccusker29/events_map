@@ -1,14 +1,38 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import { createRoot } from 'react-dom/client';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import EventPopup from './EventPopup';
 
-const Map = () => {
+interface MapProps {
+    startDate: string | null;
+    endDate: string | null;
+}
+
+const Map = ({ startDate, endDate }: MapProps) => {
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<mapboxgl.Map | null>(null);
     const popup = useRef<mapboxgl.Popup | null>(null);
+    const [isMapLoaded, setIsMapLoaded] = useState(false);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+    const buildTileUrl = (start: string | null, end: string | null) => {
+        const startParam = start || '-';
+        const endParam = end || '-';
+        return `${API_BASE_URL}/tiles/{z}/{x}/{y}/${startParam}/${endParam}.mvt`;
+    };
+
+    // Update tile source when dates change
+    useEffect(() => {
+        if (!map.current || !isMapLoaded) return;
+
+        const newTileUrl = buildTileUrl(startDate, endDate);
+        
+        const source = map.current.getSource('events-source') as mapboxgl.VectorTileSource;
+        if (source) {
+            source.setTiles([newTileUrl]);
+        }
+    }, [startDate, endDate, isMapLoaded]);
 
     useEffect(() => {
         if (map.current || !mapContainer.current) return;
@@ -18,7 +42,7 @@ const Map = () => {
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
             style: 'mapbox://styles/mapbox/dark-v11',
-            center: [0,20],
+            center: [0, 20],
             zoom: 2,
         });
 
@@ -38,9 +62,11 @@ const Map = () => {
                 });
             }
 
+            const initialTileUrl = buildTileUrl(startDate, endDate);
+
             map.current?.addSource('events-source', {
                 type: 'vector',
-                tiles: [`${API_BASE_URL}/tiles/{z}/{x}/{y}.mvt`],
+                tiles: [initialTileUrl],
             });
 
             map.current?.addLayer({
@@ -124,6 +150,7 @@ const Map = () => {
             });
 
             map.current?.resize();
+            setIsMapLoaded(true);
         });
 
         return () => {

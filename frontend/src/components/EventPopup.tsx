@@ -25,7 +25,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ name, date, views, wikiUrl, onC
             <div className="p-4">
                 <h3 className="font-semibold text-gray-900 text-lg mb-2 leading-tight pr-4">{name}</h3>
                 <p className="text-gray-600 text-sm mb-1">{formattedDate}</p>
-                <p className="text-gray-600 text-sm mb-3">{views} views/day</p>
+                <p className="text-gray-600 text-sm mb-3">{views} views</p>
                 <a
                     href={wikiUrl}
                     target="_blank"
