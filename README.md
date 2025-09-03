@@ -6,5 +6,5 @@ This map shows the locations of notable events with all data collected from Wiki
 
 Page view-counts are from May 2025, at the time of writing this. I intend to update this data for less biased statistics.
 
-Created by Ryan McCusker. Inspired by Topi Tjurkanov's [Notable People](https://tjukanovt.github.io/notable-people) map.
+Created by Ryan McCusker. Inspired by Topi Tjukanov's [Notable People](https://tjukanovt.github.io/notable-people) map.
 
